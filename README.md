@@ -14,9 +14,14 @@ Usage:
  - Hit <Cmd> + G to find the next occurrence.
  - Hit <Shift> + <Cmd> + G to find the previous occurrence.
 
-Known issue:
-- Code lacks of organization, would be great to all the things splited in files (redurcers, ations, containers, etc)
+![demo](https://media.giphy.com/media/xUA7aXl1VWN460yCju/giphy.gif)
 
+
+## TODO:
+
+- Code lacks of organization, would be great to all the things splited in files (redurcers, ations, containers, etc)
+- case sensitive / insensite searchs.
+- regular expressions.
 
 ## Credits
 Jonatan Anauati (barakawins@gmail.com)
