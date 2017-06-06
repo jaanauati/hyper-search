@@ -1,6 +1,6 @@
 {
   "name": "hyper-search",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "text searhing support for hyper.js",
   "main": "index.js",
   "scripts": {
