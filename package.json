@@ -1,0 +1,34 @@
+{
+  "name": "hyper-search",
+  "version": "0.0.1",
+  "description": "text searhing support for hyper.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "eslint": "node_modules/eslint/bin/eslint.js ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaanauati/hyper-search.git"
+  },
+  "keywords": [
+    "hyper",
+    "hyper.app",
+    "find",
+    "search",
+    "plugin"
+  ],
+  "author": "Jonatan Alexis Anauati",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jaanauati/hyper-search/issues"
+  },
+  "homepage": "https://github.com/jaanauati/hyper-search#readme",
+  "devDependencies": {
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^15.0.1",
+    "eslint-plugin-import": "^2.3.0",
+    "eslint-plugin-jsx-a11y": "^5.0.3",
+    "eslint-plugin-react": "^7.0.1"
+  }
+}

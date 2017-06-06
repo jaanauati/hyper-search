@@ -1,0 +1,14 @@
+{
+  "extends": "airbnb",
+  "globals": {
+    "window": true,
+    "document": true
+  },
+  "rules": {
+    "class-methods-use-this": 0,
+    "no-plusplus": 0,
+    "no-restricted-syntax": 0,
+    "react/prop-types": 0,
+    "comma-dangle": 0
+  }
+}
