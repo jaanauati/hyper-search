@@ -18,8 +18,6 @@ Usage:
 
 
 ## TODO:
-
-- Code lacks of organization, would be great to all the things splited in files (redurcers, ations, containers, etc)
 - case sensitive / insensite searchs.
 - regular expressions.
 

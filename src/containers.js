@@ -1,102 +1,5 @@
-// some constants
-const prefix = process.platform === 'darwin' ? 'Cmd' : 'Ctrl';
-
-const EDIT = 'Edit';
-const ENTER = 'Enter';
-const DIRECTION_NEXT = 1;
-const DIRECTION_PREV = -1;
-
-// action types
-const TOGGLE_SEARCH_INPUT = 'HS_TOGGLE_SEARCH_INPUT';
-const UPDATE_SEARCH_TEXT = 'HS_UPDATE_SEARCH_TEXT';
-const CURRENT_MATCH = 'HS_CURRENT_MATCH';
-
-// action creators
-function setCurrentMatch(uid, row, startIndex, endIndex) {
-  return (dispatch) => {
-    dispatch({ type: CURRENT_MATCH, data: { uid, row, startIndex, endIndex } });
-  };
-}
-
-function toggleSearchInput(uid) {
-  return (dispatch) => {
-    dispatch({ type: TOGGLE_SEARCH_INPUT, uid });
-  };
-}
-
-function updateSearchText(uid, text) {
-  return (dispatch) => {
-    dispatch({ type: UPDATE_SEARCH_TEXT, uid, text });
-  };
-}
-
-// reducer
-exports.reduceUI = (state, action) => {
-  switch (action.type) {
-    case TOGGLE_SEARCH_INPUT: {
-      const uid = action.uid;
-      const { hyperSearchToggleInput = {} } = state;
-      return state.set(
-        'hyperSearchToggleInput',
-        Object.assign({}, hyperSearchToggleInput, { [uid]: !hyperSearchToggleInput[uid] })
-      );
-    }
-    case UPDATE_SEARCH_TEXT: {
-      const { hyperSearchInputText = {} } = state;
-      return state.set('hyperSearchInputText',
-        Object.assign({}, hyperSearchInputText, { [action.uid]: action.text }));
-    }
-    case CURRENT_MATCH: {
-      const { hyperSearchCurrentRow = {} } = state;
-      const { uid, row, startIndex, endIndex } = action.data;
-      return state.set('hyperSearchCurrentRow',
-        Object.assign({}, hyperSearchCurrentRow, { [uid]: { row, startIndex, endIndex } }));
-    }
-    default:
-      return state;
-  }
-};
-
-exports.decorateMenu = (menu) => {
-  for (const menuItem of menu) {
-    if (menuItem.label === EDIT) {
-      menuItem.submenu = menuItem.submenu.concat({
-        label: 'Find',
-        submenu: [
-          {
-            label: 'Toggle Find Bar',
-            accelerator: `${prefix}+F`,
-            click(item, focusedWindow) {
-              if (focusedWindow !== null) {
-                focusedWindow.rpc.emit('hyper-search:toggle:input', { focusedWindow });
-              }
-            },
-          },
-          {
-            label: 'Find Next',
-            accelerator: `${prefix}+G`,
-            click(item, focusedWindow) {
-              if (focusedWindow !== null) {
-                focusedWindow.rpc.emit('hyper-search:seach:next', { focusedWindow });
-              }
-            },
-          },
-          {
-            label: 'Find Previous',
-            accelerator: `${prefix}+Shift+G`,
-            click(item, focusedWindow) {
-              if (focusedWindow !== null) {
-                focusedWindow.rpc.emit('hyper-search:seach:prev', { focusedWindow });
-              }
-            },
-          },
-        ],
-      });
-      break;
-    }
-  }
-  return menu;
-};
+const { setCurrentMatch, toggleSearchInput, updateSearchText } = require('./actions');
+const { DIRECTION_NEXT, DIRECTION_PREV, ENTER } = require('./constants');
 
 exports.mapTermsState = (state, map) => (
   Object.assign(map, {
@@ -108,8 +11,7 @@ exports.mapTermsState = (state, map) => (
   })
 );
 
-
-const passProps = (uid, parentProps, props) => (
+exports.passProps = (uid, parentProps, props) => (
   Object.assign(props, {
     focussedSessionUid: parentProps.focussedSessionUid,
     hyperSearchToggleInput: parentProps.hyperSearchToggleInput,
@@ -119,8 +21,8 @@ const passProps = (uid, parentProps, props) => (
   })
 );
 
-exports.getTermGroupProps = passProps;
-exports.getTermProps = passProps;
+exports.getTermGroupProps = exports.passProps;
+exports.getTermProps = exports.passProps;
 
 exports.decorateTerm = (Term, { React }) => {
   class HyperSearchTerm extends React.Component {
