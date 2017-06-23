@@ -1,7 +1,7 @@
 
 # Hyper-search
 
-Extension for [Hyper](https://hyper.is) that implements text search feature.
+Extension for [Hyper](https://hyper.is) that allows you to search text in your terminal.
 
 ## How to use
 
