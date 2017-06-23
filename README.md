@@ -1,7 +1,7 @@
 
 # Hyper-search
 
-Extension for [Hyper](https://hyper.is) that implements text search feature.
+Extension for [Hyper](https://hyper.is) that allows you to search text in your terminal.
 
 ## How to use
 
@@ -13,6 +13,7 @@ Usage:
  - Type ```<Cmd>``` + F to toggle the search controls.
  - Hit ```<Cmd>``` + G to find the next occurrence.
  - Hit ```<Shift>``` + ```<Cmd>``` + G to find the previous occurrence.
+ - Hit ```<Esc>``` to hide the search dialog.
 
 ![demo](https://media.giphy.com/media/xUA7aXl1VWN460yCju/giphy.gif)
 
@@ -26,4 +27,4 @@ Jonatan Anauati (barakawins@gmail.com)
 
 ## License
 
-MIT
+ISC
