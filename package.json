@@ -1,7 +1,7 @@
 {
   "name": "hyper-search",
-  "version": "0.0.4",
-  "description": "text searhing support for hyper.js",
+  "version": "0.0.5",
+  "description": "text search dialog for hyper.js",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
