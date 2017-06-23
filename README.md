@@ -27,4 +27,4 @@ Jonatan Anauati (barakawins@gmail.com)
 
 ## License
 
-MIT
+ISC
