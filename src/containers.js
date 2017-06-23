@@ -127,10 +127,7 @@ exports.decorateTerm = (Term, { React }) => {
           this.handleSearchNext();
         } else if (event.key === ESCAPE) {
           window.store.dispatch(toggleSearchInput(uid));
-          // set focus on term if panel was just hidden.
-          if (this.toggleInput() === false) {
-            if (this.props.term) this.props.term.focus();
-          }
+          if (this.props.term) this.props.term.focus();
         }
       }
     }
