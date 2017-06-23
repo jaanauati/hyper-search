@@ -1,5 +1,5 @@
 const { setCurrentMatch, toggleSearchInput, updateSearchText } = require('./actions');
-const { DIRECTION_NEXT, DIRECTION_PREV, ENTER } = require('./constants');
+const { DIRECTION_NEXT, DIRECTION_PREV, ENTER, ESCAPE } = require('./constants');
 
 exports.mapTermsState = (state, map) => (
   Object.assign(map, {
@@ -125,6 +125,9 @@ exports.decorateTerm = (Term, { React }) => {
       if (uid === focussedSessionUid) {
         if (event.key === ENTER) {
           this.handleSearchNext();
+        } else if (event.key === ESCAPE) {
+          window.store.dispatch(toggleSearchInput(uid));
+          if (this.props.term) this.props.term.focus();
         }
       }
     }
