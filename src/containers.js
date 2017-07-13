@@ -270,6 +270,7 @@ exports.decorateTerm = (Term, { React }) => {
             right: '10px',
             top: '5px',
             width: '200px',
+            zIndex: '9999'
           },
         },
         React.createElement('input', {
