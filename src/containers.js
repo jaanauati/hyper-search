@@ -51,20 +51,20 @@ exports.decorateTerm = (Term, { React }) => {
 
     getContiguousRows(rowNr, direction) {
       const { term } = this.props;
-      let node = term.getRowNode(rowNr);
+      let node = term.children[rowNr];
       let rows = [node];
       let row = rowNr;
       if (direction === DIRECTION_NEXT) {
-        const rowsCount = term.getRowCount();
+        const { rows: rowsCount } = term;
         while (node.attributes['line-overflow'] && row < rowsCount - 1) {
           row++;
-          node = term.getRowNode(row);
+          node = term.children[row];
           rows.push(node);
         }
       } else {
         let keepGoing = true;
         while (keepGoing && row > 0) {
-          const prevNode = term.getRowNode(--row);
+          const prevNode = term.children[--row];
           if (prevNode.attributes['line-overflow']) {
             rows.push(prevNode);
           } else {
@@ -96,7 +96,7 @@ exports.decorateTerm = (Term, { React }) => {
       if (uid === focussedSessionUid) {
         // if input is visible, but terminal is focused we don't just focus
         // the input
-        if (term.getDocument().hasFocus() && this.toggleInput()) {
+        if (term.document.hasFocus() && this.toggleInput()) {
           if (this.inputNode) this.inputNode.focus();
         } else {
           window.store.dispatch(toggleSearchInput(uid));
@@ -152,7 +152,7 @@ exports.decorateTerm = (Term, { React }) => {
       window.term = term;
       const input = this.getInputText();
       if (!input) return;
-      const rowsCount = term.getRowCount();
+      const { rows: rowsCount } = term;
       const increment = (direction === DIRECTION_NEXT) ? 1 : -1;
       let { row = (direction === DIRECTION_NEXT) ? 0 : rowsCount,
             startIndex = 0, endIndex = 0 } = this.getLastMatchPosition();
@@ -223,12 +223,12 @@ exports.decorateTerm = (Term, { React }) => {
           }
           if (endNode !== null) endNodeIdx = idx;
           if (startNode !== null && endNode !== null) {
-            term.scrollHome();
+            term.scrollToTop();
             // eslint-disable-next-line no-underscore-dangle
-            term.scrollPort_.scrollRowToBottom(row + nodes.length);
+            //term.scrollPort_.scrollRowToBottom(row + nodes.length);
             // eslint-disable-next-line no-loop-func
             setTimeout(() => {
-              const termDocument = term.getDocument();
+              const { document: termDocument } = term;
               const range = termDocument.createRange();
               const sel = termDocument.getSelection();
               range.selectNodeContents(termDocument);
