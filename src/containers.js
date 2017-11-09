@@ -264,6 +264,7 @@ exports.decorateTerm = (Term, { React }) => {
         { style },
         this.toggleInput() &&
         React.createElement('div', {
+          className: 'hyper-search-wrapper',
           style: {
             height: '30px',
             position: 'absolute',
