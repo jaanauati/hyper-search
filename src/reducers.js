@@ -17,9 +17,9 @@ exports.reduceUI = (state, action) => {
     }
     case CURRENT_MATCH: {
       const { hyperSearchCurrentRow = {} } = state;
-      const { uid, row, startIndex, endIndex } = action.data;
+      const { uid, row, startIndex, endIndex, endRow } = action.data;
       return state.set('hyperSearchCurrentRow',
-        Object.assign({}, hyperSearchCurrentRow, { [uid]: { row, startIndex, endIndex } }));
+        Object.assign({}, hyperSearchCurrentRow, { [uid]: { row, startIndex, endIndex, endRow } }));
     }
     default:
       return state;

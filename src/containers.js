@@ -146,10 +146,85 @@ exports.decorateTerm = (Term, { React }) => {
       }
     }
 
-    // TODO: multileline/row support (row.line-overflow=true)
-    search(direction = DIRECTION_NEXT) {
+    highlightLine(startRow, startIdx, endRow, endIdx) {
       const { term, uid } = this.props;
-      window.term = term;
+      term.selectionManager._model.selectionStart = [startIdx, startRow];
+      term.selectionManager._model.selectionEnd = [endIdx + 1, endRow];
+      term.selectionManager.refresh();
+      term.scrollDisp(startRow - term.buffer.ydisp);
+      window.store.dispatch(
+        setCurrentMatch(uid, startRow, startIdx, endIdx, endRow)
+      );
+    }
+
+    getLine(lineNr) {
+      let line = null;
+      const { term } = this.props;
+      if (lineNr <= term.rows) {
+        line = term.buffer.lines.get(lineNr)
+          .reduce((acc, el) => acc + el[1], '');
+      }
+      return line;
+    }
+    search(direction = DIRECTION_NEXT) {
+      const { term } = this.props;
+      const input = this.getInputText();
+      const lastInputLength = input.length - 1;
+      let {
+        row: startRow = 0,
+        startIndex: startIdx = -1,
+        endRow = 0,
+        endIndex: endIdx = 0,
+      } = this.getLastMatchPosition();
+      let _startRow = startRow;
+      let rowNr = startRow;
+      let rewind = false;
+      while (rowNr < term.rows) {
+        const currentLine = this.getLine(rowNr);
+        const currentLineLenght = currentLine.length;
+        let inputIdx = 0;
+        let _startIdx = startIdx + 1;
+        let lineIdx = 0;
+        for (lineIdx = _startIdx; lineIdx < currentLineLenght; lineIdx++, inputIdx++) {
+          if (inputIdx === 0) {
+            _startRow = rowNr;
+          }
+          if (input[inputIdx] !== currentLine[lineIdx]) {
+            inputIdx = -1;
+            // if match started in a different row we rewind to it.
+            if (_startRow !== rowNr) {
+              rewind = true;
+              rowNr = _startRow;
+              _startIdx += 1;
+            } else {
+              _startIdx = lineIdx + 1;
+            }
+          } else {
+            if (inputIdx >= lastInputLength) {
+              // match found
+              break;
+            }
+          }
+        }
+        if (inputIdx >= lastInputLength) {
+          startRow = _startRow;
+          startIdx = _startIdx;
+          endRow = rowNr;
+          endIdx = lineIdx;
+          this.highlightLine(startRow, startIdx, endRow, endIdx);
+          break;
+        }
+        if (rewind) {
+          rewind = false;
+        } else {
+          rowNr++;
+          startIdx = -1;
+        }
+      }
+    }
+
+    legacySearch(direction = DIRECTION_NEXT) {
+      const { term, uid } = this.props;
       const input = this.getInputText();
       if (!input) return;
       const { rows: rowsCount } = term;

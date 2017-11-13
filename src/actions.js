@@ -1,8 +1,10 @@
 const { CURRENT_MATCH, TOGGLE_SEARCH_INPUT, UPDATE_SEARCH_TEXT } = require('./actionTypes');
 
-module.exports.setCurrentMatch = function setCurrentMatch(uid, row, startIndex, endIndex) {
+module.exports.setCurrentMatch = function setCurrentMatch(
+  uid, row, startIndex, endIndex, endRow
+) {
   return (dispatch) => {
-    dispatch({ type: CURRENT_MATCH, data: { uid, row, startIndex, endIndex } });
+    dispatch({ type: CURRENT_MATCH, data: { uid, row, startIndex, endIndex, endRow } });
   };
 };
 
