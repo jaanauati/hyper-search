@@ -147,66 +147,106 @@ exports.decorateTerm = (Term, { React }) => {
     }
 
     highlightLine(startRow, startIdx, endRow, endIdx) {
+      let _startRow, _startIdx, _endRow, _endIdx;
+      if (startRow*1000 + startIdx <= endRow*1000 + endIdx){
+        _startRow = startRow;
+        _endRow = endRow;
+        _startIdx = startIdx;
+        _endIdx = endIdx;
+      } else {
+        _startRow = endRow;
+        _endRow = startRow;
+        _startIdx = endIdx;
+        _endIdx = startIdx
+      }
       const { term, uid } = this.props;
-      term.selectionManager._model.selectionStart = [startIdx, startRow];
-      term.selectionManager._model.selectionEnd = [endIdx + 1, endRow];
+      term.selectionManager._model.selectionStart = [_startIdx, _startRow];
+      term.selectionManager._model.selectionEnd = [_endIdx + 1, _endRow];
       term.selectionManager.refresh();
-      term.scrollDisp(startRow - term.buffer.ydisp);
+      term.scrollDisp(_startRow - term.buffer.ydisp);
       window.store.dispatch(
-        setCurrentMatch(uid, startRow, startIdx, endIdx, endRow)
+        setCurrentMatch(uid, _startRow, _startIdx, _endIdx, _endRow)
       );
     }
 
     getLine(lineNr) {
       let line = null;
       const { term } = this.props;
-      if (lineNr <= term.rows) {
-        line = term.buffer.lines.get(lineNr)
+      const { buffer: { lines } } = term;
+      const { length: rows } = lines;
+      if (lineNr <= rows) {
+        line = lines.get(lineNr)
           .reduce((acc, el) => acc + el[1], '');
       }
       return line;
     }
+    // toodo: refactor this method and write some tests
     search(direction = DIRECTION_NEXT) {
       const { term } = this.props;
+      const { buffer: { lines: { length: rows } } } = term;
       const input = this.getInputText();
-      const lastInputLength = input.length - 1;
       let {
         row: startRow = 0,
-        startIndex: startIdx = -1,
-        endRow = 0,
-        endIndex: endIdx = 0,
+        startIndex: startIdx = 0,
+        endRow = rows - 1,
+        endIndex: endIdx = -1,
       } = this.getLastMatchPosition();
       let _startRow = startRow;
-      let rowNr = startRow;
+      let increment;
+      let initialInputIdx;
+      let lastInputIdx;
+      let rowNr;
+      let _startIdx;
+      if (direction === DIRECTION_NEXT) {
+        increment = 1;
+        initialInputIdx = 0;
+        lastInputIdx = input.length - 1;
+        rowNr = startRow;
+        _startIdx = startIdx;
+      } else {
+        increment = -1;
+        initialInputIdx = input.length - 1;
+        lastInputIdx = 0;
+        rowNr = endRow;
+        _startIdx = endIdx;
+      }
+      _startIdx += increment;
+      let currentLine = this.getLine(rowNr);
+      let currentLineLenght = currentLine.length;
+      let currentLineLastIdx = (direction === DIRECTION_NEXT) ? currentLineLenght : -1;
+      if (endIdx === -1) {
+        endIdx = currentLine.length - 1;
+      }
       let rewind = false;
-      while (rowNr < term.rows) {
-        const currentLine = this.getLine(rowNr);
-        const currentLineLenght = currentLine.length;
-        let inputIdx = 0;
-        let _startIdx = startIdx + 1;
-        let lineIdx = 0;
-        for (lineIdx = _startIdx; lineIdx < currentLineLenght; lineIdx++, inputIdx++) {
-          if (inputIdx === 0) {
+      if (currentLine === null) return;
+      while (true) {
+        let inputIdx = initialInputIdx;
+        let lineIdx = _startIdx;
+        while (lineIdx !== currentLineLastIdx) {
+          if (inputIdx === initialInputIdx) {
             _startRow = rowNr;
+            _startIdx = lineIdx;
           }
           if (input[inputIdx] !== currentLine[lineIdx]) {
-            inputIdx = -1;
+            inputIdx = initialInputIdx;
             // if match started in a different row we rewind to it.
+            _startIdx += increment;
             if (_startRow !== rowNr) {
               rewind = true;
               rowNr = _startRow;
-              _startIdx += 1;
-            } else {
-              _startIdx = lineIdx + 1;
-            }
-          } else {
-            if (inputIdx >= lastInputLength) {
-              // match found
               break;
             }
+          } else if (inputIdx === lastInputIdx) {
+            // match found
+            break;
+          } else {
+            inputIdx += increment;
           }
+          lineIdx += increment;
         }
-        if (inputIdx >= lastInputLength) {
+        // match found. we set variables, hightlight the result, save
+        // state into reducer and stop the iteration.
+        if (inputIdx >= lastInputIdx) {
           startRow = _startRow;
           startIdx = _startIdx;
           endRow = rowNr;
@@ -214,11 +254,24 @@ exports.decorateTerm = (Term, { React }) => {
           this.highlightLine(startRow, startIdx, endRow, endIdx);
           break;
         }
-        if (rewind) {
-          rewind = false;
-        } else {
-          rowNr++;
+        if (!rewind) {
+          rowNr += increment;
           startIdx = -1;
+        }
+        currentLine = this.getLine(rowNr);
+        if (currentLine === null) {
+          break;
+        }
+        currentLineLenght = currentLine.length;
+        if (rewind) {
+          // have var pointing the right index.
+          _startIdx += increment;
+          rewind = false;
+          break;
+        } else {
+          // reset pointer
+          _startIdx = (direction === DIRECTION_NEXT) ? 0 : currentLineLenght - 1;
+          currentLineLastIdx = (direction === DIRECTION_NEXT) ? currentLineLenght : -1;
         }
       }
     }
