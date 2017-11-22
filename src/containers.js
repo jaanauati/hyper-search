@@ -1,4 +1,5 @@
-const { setCurrentMatch, toggleSearchInput, updateSearchText } = require('./actions');
+const { resetCurrentMatch, setCurrentMatch, toggleSearchInput,
+        updateSearchText } = require('./actions');
 const { DIRECTION_NEXT, DIRECTION_PREV, ENTER, ESCAPE } = require('./constants');
 
 exports.mapTermsState = (state, map) => (
@@ -147,8 +148,11 @@ exports.decorateTerm = (Term, { React }) => {
     }
 
     highlightLine(startRow, startIdx, endRow, endIdx) {
-      let _startRow, _startIdx, _endRow, _endIdx;
-      if (startRow*1000 + startIdx <= endRow*1000 + endIdx){
+      let _startRow;
+      let _startIdx;
+      let _endRow;
+      let _endIdx;
+      if ((startRow * 1000) + startIdx <= (endRow * 1000) + endIdx) {
         _startRow = startRow;
         _endRow = endRow;
         _startIdx = startIdx;
@@ -157,7 +161,7 @@ exports.decorateTerm = (Term, { React }) => {
         _startRow = endRow;
         _endRow = startRow;
         _startIdx = endIdx;
-        _endIdx = startIdx
+        _endIdx = startIdx;
       }
       const { term, uid } = this.props;
       term.selectionManager._model.selectionStart = [_startIdx, _startRow];
@@ -174,7 +178,7 @@ exports.decorateTerm = (Term, { React }) => {
       const { term } = this.props;
       const { buffer: { lines } } = term;
       const { length: rows } = lines;
-      if (lineNr <= rows) {
+      if (lineNr >= 0 && lineNr < rows) {
         line = lines.get(lineNr)
           .reduce((acc, el) => acc + el[1], '');
       }
@@ -182,15 +186,17 @@ exports.decorateTerm = (Term, { React }) => {
     }
     // toodo: refactor this method and write some tests
     search(direction = DIRECTION_NEXT) {
-      const { term } = this.props;
+      const { term, uid } = this.props;
       const { buffer: { lines: { length: rows } } } = term;
       const input = this.getInputText();
+      const lastMatch = this.getLastMatchPosition();
+      const { reset: initialState } = lastMatch;
       let {
         row: startRow = 0,
         startIndex: startIdx = 0,
         endRow = rows - 1,
-        endIndex: endIdx = -1,
-      } = this.getLastMatchPosition();
+        endIndex: endIdx = 0,
+      } = lastMatch;
       let _startRow = startRow;
       let increment;
       let initialInputIdx;
@@ -210,15 +216,23 @@ exports.decorateTerm = (Term, { React }) => {
         rowNr = endRow;
         _startIdx = endIdx;
       }
-      _startIdx += increment;
+      if (initialState !== true) {
+        _startIdx += increment;
+      }
       let currentLine = this.getLine(rowNr);
+      if (currentLine === null) {
+        window.store.dispatch(
+          resetCurrentMatch(uid, term)
+        );
+        return;
+      }
       let currentLineLenght = currentLine.length;
       let currentLineLastIdx = (direction === DIRECTION_NEXT) ? currentLineLenght : -1;
-      if (endIdx === -1) {
+      if (endIdx === 0) {
         endIdx = currentLine.length - 1;
       }
       let rewind = false;
-      if (currentLine === null) return;
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         let inputIdx = initialInputIdx;
         let lineIdx = _startIdx;
@@ -246,13 +260,13 @@ exports.decorateTerm = (Term, { React }) => {
         }
         // match found. we set variables, hightlight the result, save
         // state into reducer and stop the iteration.
-        if (inputIdx >= lastInputIdx) {
+        if (inputIdx === lastInputIdx) {
           startRow = _startRow;
           startIdx = _startIdx;
           endRow = rowNr;
           endIdx = lineIdx;
           this.highlightLine(startRow, startIdx, endRow, endIdx);
-          break;
+          return;
         }
         if (!rewind) {
           rowNr += increment;
@@ -260,7 +274,10 @@ exports.decorateTerm = (Term, { React }) => {
         }
         currentLine = this.getLine(rowNr);
         if (currentLine === null) {
-          break;
+          window.store.dispatch(
+            resetCurrentMatch(uid, term, direction)
+          );
+          return;
         }
         currentLineLenght = currentLine.length;
         if (rewind) {

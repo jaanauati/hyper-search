@@ -8,6 +8,24 @@ module.exports.setCurrentMatch = function setCurrentMatch(
   };
 };
 
+module.exports.resetCurrentMatch = function resetCurrentMatch(
+  uid, term
+) {
+  const { buffer: { lines: { length: rows } } } = term;
+  const row = 0;
+  const startIndex = 0;
+  const endRow = rows - 1;
+  const endIndex = 0;
+  return (dispatch) => {
+    dispatch({
+      type: CURRENT_MATCH,
+      data: {
+        uid, row, startIndex, endIndex, endRow, reset: true
+      }
+    });
+  };
+};
+
 module.exports.toggleSearchInput = function toggleSearchInput(uid) {
   return (dispatch) => {
     dispatch({ type: TOGGLE_SEARCH_INPUT, uid });
