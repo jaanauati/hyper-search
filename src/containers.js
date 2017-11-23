@@ -50,22 +50,23 @@ exports.decorateTerm = (Term, { React }) => {
       window.rpc.removeListener('hyper-search:toggle:input', this.handleToggleInput);
     }
 
+    //legacy code for version <= 1.4.8
     getContiguousRows(rowNr, direction) {
       const { term } = this.props;
-      let node = term.children[rowNr];
+      let node = term.getRowNode(rowNr);
       let rows = [node];
       let row = rowNr;
       if (direction === DIRECTION_NEXT) {
-        const { rows: rowsCount } = term;
+        const rowsCount = term.getRowCount();
         while (node.attributes['line-overflow'] && row < rowsCount - 1) {
           row++;
-          node = term.children[row];
+          node = term.getRowNode(row);
           rows.push(node);
         }
       } else {
         let keepGoing = true;
         while (keepGoing && row > 0) {
-          const prevNode = term.children[--row];
+          const prevNode = term.getRowNode(--row);
           if (prevNode.attributes['line-overflow']) {
             rows.push(prevNode);
           } else {
@@ -97,8 +98,10 @@ exports.decorateTerm = (Term, { React }) => {
       if (uid === focussedSessionUid) {
         // if input is visible, but terminal is focused we don't just focus
         // the input
-        if (term.document.hasFocus() && this.toggleInput()) {
-          if (this.inputNode) this.inputNode.focus();
+        if ((term.document || term.getDocument()).hasFocus() && this.toggleInput()) {
+          if (this.inputNode) {
+            this.inputNode.focus();
+          }
         } else {
           window.store.dispatch(toggleSearchInput(uid));
           // set focus on term if panel was just hidden.
@@ -133,17 +136,26 @@ exports.decorateTerm = (Term, { React }) => {
       }
     }
 
+    handleSearch(direction) {
+      const { term } = this.props;
+      if (!term.selectionManager) {
+        this.legacySearch(direction);
+      } else {
+        this.search(direction);
+      }
+    }
+
     handleSearchPrev() {
       const { uid, focussedSessionUid } = this.props;
       if (uid === focussedSessionUid) {
-        this.search(DIRECTION_PREV);
+        this.handleSearch(DIRECTION_PREV);
       }
     }
 
     handleSearchNext() {
       const { uid, focussedSessionUid } = this.props;
       if (uid === focussedSessionUid) {
-        this.search(DIRECTION_NEXT);
+        this.handleSearch(DIRECTION_NEXT);
       }
     }
 
@@ -293,11 +305,12 @@ exports.decorateTerm = (Term, { React }) => {
       }
     }
 
+    //legacy code for version <= 1.4.8
     legacySearch(direction = DIRECTION_NEXT) {
       const { term, uid } = this.props;
       const input = this.getInputText();
       if (!input) return;
-      const { rows: rowsCount } = term;
+      const rowsCount = term.getRowCount();
       const increment = (direction === DIRECTION_NEXT) ? 1 : -1;
       let { row = (direction === DIRECTION_NEXT) ? 0 : rowsCount,
             startIndex = 0, endIndex = 0 } = this.getLastMatchPosition();
@@ -368,12 +381,12 @@ exports.decorateTerm = (Term, { React }) => {
           }
           if (endNode !== null) endNodeIdx = idx;
           if (startNode !== null && endNode !== null) {
-            term.scrollToTop();
+            term.scrollHome();
             // eslint-disable-next-line no-underscore-dangle
-            //term.scrollPort_.scrollRowToBottom(row + nodes.length);
+            term.scrollPort_.scrollRowToBottom(row + nodes.length);
             // eslint-disable-next-line no-loop-func
             setTimeout(() => {
-              const { document: termDocument } = term;
+              const termDocument = term.getDocument();
               const range = termDocument.createRange();
               const sel = termDocument.getSelection();
               range.selectNodeContents(termDocument);
@@ -402,6 +415,7 @@ exports.decorateTerm = (Term, { React }) => {
         // ßbeep
       }
     }
+
     render() {
       const style = Object.assign({}, this.props.style || {}, { height: '100%' });
       return React.createElement(
