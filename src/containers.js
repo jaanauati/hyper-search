@@ -96,18 +96,13 @@ exports.decorateTerm = (Term, { React }) => {
     handleToggleInput() {
       const { term, uid, focussedSessionUid } = this.props;
       if (uid === focussedSessionUid) {
-        // if input is visible, but terminal is focused we don't just focus
-        // the input
-        if ((term.document || term.getDocument()).hasFocus() && this.toggleInput()) {
+        window.store.dispatch(toggleSearchInput(uid));
+        if (this.toggleInput()) {
           if (this.inputNode) {
             this.inputNode.focus();
           }
-        } else {
-          window.store.dispatch(toggleSearchInput(uid));
-          // set focus on term if panel was just hidden.
-          if (this.toggleInput() === false) {
-            if (this.props.term) this.props.term.focus();
-          }
+        } else if (term) {
+          this.props.term.focus();
         }
       }
     }
@@ -398,7 +393,6 @@ exports.decorateTerm = (Term, { React }) => {
                 endNode.childNodes.length ? endNode.childNodes[0] : endNode,
                 endIndex - childrenOffsets[endNodeIdx]
               );
-              window.lastRange = range;
               sel.removeAllRanges();
               sel.addRange(range);
               window.store.dispatch(setCurrentMatch(uid, row, startIndex, endIndex));
