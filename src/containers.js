@@ -1,4 +1,5 @@
-const { setCurrentMatch, toggleSearchInput, updateSearchText } = require('./actions');
+const { resetCurrentMatch, setCurrentMatch, toggleSearchInput,
+        updateSearchText } = require('./actions');
 const { DIRECTION_NEXT, DIRECTION_PREV, ENTER, ESCAPE } = require('./constants');
 
 exports.mapTermsState = (state, map) => (
@@ -49,6 +50,7 @@ exports.decorateTerm = (Term, { React }) => {
       window.rpc.removeListener('hyper-search:toggle:input', this.handleToggleInput);
     }
 
+    //legacy code for version <= 1.4.8
     getContiguousRows(rowNr, direction) {
       const { term } = this.props;
       let node = term.getRowNode(rowNr);
@@ -94,16 +96,13 @@ exports.decorateTerm = (Term, { React }) => {
     handleToggleInput() {
       const { term, uid, focussedSessionUid } = this.props;
       if (uid === focussedSessionUid) {
-        // if input is visible, but terminal is focused we don't just focus
-        // the input
-        if (term.getDocument().hasFocus() && this.toggleInput()) {
-          if (this.inputNode) this.inputNode.focus();
-        } else {
-          window.store.dispatch(toggleSearchInput(uid));
-          // set focus on term if panel was just hidden.
-          if (this.toggleInput() === false) {
-            if (this.props.term) this.props.term.focus();
+        window.store.dispatch(toggleSearchInput(uid));
+        if (this.toggleInput()) {
+          if (this.inputNode) {
+            this.inputNode.focus();
           }
+        } else if (term) {
+          this.props.term.focus();
         }
       }
     }
@@ -132,24 +131,178 @@ exports.decorateTerm = (Term, { React }) => {
       }
     }
 
+    handleSearch(direction) {
+      const { term } = this.props;
+      if (!term.selectionManager) {
+        this.legacySearch(direction);
+      } else {
+        this.search(direction);
+      }
+    }
+
     handleSearchPrev() {
       const { uid, focussedSessionUid } = this.props;
       if (uid === focussedSessionUid) {
-        this.search(DIRECTION_PREV);
+        this.handleSearch(DIRECTION_PREV);
       }
     }
 
     handleSearchNext() {
       const { uid, focussedSessionUid } = this.props;
       if (uid === focussedSessionUid) {
-        this.search(DIRECTION_NEXT);
+        this.handleSearch(DIRECTION_NEXT);
       }
     }
 
-    // TODO: multileline/row support (row.line-overflow=true)
+    highlightLine(startRow, startIdx, endRow, endIdx) {
+      let _startRow;
+      let _startIdx;
+      let _endRow;
+      let _endIdx;
+      if ((startRow * 1000) + startIdx <= (endRow * 1000) + endIdx) {
+        _startRow = startRow;
+        _endRow = endRow;
+        _startIdx = startIdx;
+        _endIdx = endIdx;
+      } else {
+        _startRow = endRow;
+        _endRow = startRow;
+        _startIdx = endIdx;
+        _endIdx = startIdx;
+      }
+      const { term, uid } = this.props;
+      term.selectionManager._model.selectionStart = [_startIdx, _startRow];
+      term.selectionManager._model.selectionEnd = [_endIdx + 1, _endRow];
+      term.selectionManager.refresh();
+      term.scrollDisp(_startRow - term.buffer.ydisp);
+      window.store.dispatch(
+        setCurrentMatch(uid, _startRow, _startIdx, _endIdx, _endRow)
+      );
+    }
+
+    getLine(lineNr) {
+      let line = null;
+      const { term } = this.props;
+      const { buffer: { lines } } = term;
+      const { length: rows } = lines;
+      if (lineNr >= 0 && lineNr < rows) {
+        line = lines.get(lineNr)
+          .reduce((acc, el) => acc + el[1], '');
+      }
+      return line;
+    }
+    // toodo: refactor this method and write some tests
     search(direction = DIRECTION_NEXT) {
       const { term, uid } = this.props;
-      window.term = term;
+      const { buffer: { lines: { length: rows } } } = term;
+      const input = this.getInputText();
+      const lastMatch = this.getLastMatchPosition();
+      const { reset: initialState } = lastMatch;
+      let {
+        row: startRow = 0,
+        startIndex: startIdx = 0,
+        endRow = rows - 1,
+        endIndex: endIdx = 0,
+      } = lastMatch;
+      let _startRow = startRow;
+      let increment;
+      let initialInputIdx;
+      let lastInputIdx;
+      let rowNr;
+      let _startIdx;
+      if (direction === DIRECTION_NEXT) {
+        increment = 1;
+        initialInputIdx = 0;
+        lastInputIdx = input.length - 1;
+        rowNr = startRow;
+        _startIdx = startIdx;
+      } else {
+        increment = -1;
+        initialInputIdx = input.length - 1;
+        lastInputIdx = 0;
+        rowNr = endRow;
+        _startIdx = endIdx;
+      }
+      if (initialState !== true) {
+        _startIdx += increment;
+      }
+      let currentLine = this.getLine(rowNr);
+      if (currentLine === null) {
+        window.store.dispatch(
+          resetCurrentMatch(uid, term)
+        );
+        return;
+      }
+      let currentLineLenght = currentLine.length;
+      let currentLineLastIdx = (direction === DIRECTION_NEXT) ? currentLineLenght : -1;
+      if (endIdx === 0) {
+        endIdx = currentLine.length - 1;
+      }
+      let rewind = false;
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        let inputIdx = initialInputIdx;
+        let lineIdx = _startIdx;
+        while (lineIdx !== currentLineLastIdx) {
+          if (inputIdx === initialInputIdx) {
+            _startRow = rowNr;
+            _startIdx = lineIdx;
+          }
+          if (input[inputIdx] !== currentLine[lineIdx]) {
+            inputIdx = initialInputIdx;
+            // if match started in a different row we rewind to it.
+            _startIdx += increment;
+            if (_startRow !== rowNr) {
+              rewind = true;
+              rowNr = _startRow;
+              break;
+            }
+          } else if (inputIdx === lastInputIdx) {
+            // match found
+            break;
+          } else {
+            inputIdx += increment;
+          }
+          lineIdx += increment;
+        }
+        // match found. we set variables, hightlight the result, save
+        // state into reducer and stop the iteration.
+        if (inputIdx === lastInputIdx) {
+          startRow = _startRow;
+          startIdx = _startIdx;
+          endRow = rowNr;
+          endIdx = lineIdx;
+          this.highlightLine(startRow, startIdx, endRow, endIdx);
+          return;
+        }
+        if (!rewind) {
+          rowNr += increment;
+          startIdx = -1;
+        }
+        currentLine = this.getLine(rowNr);
+        if (currentLine === null) {
+          window.store.dispatch(
+            resetCurrentMatch(uid, term, direction)
+          );
+          return;
+        }
+        currentLineLenght = currentLine.length;
+        if (rewind) {
+          // have var pointing the right index.
+          _startIdx += increment;
+          rewind = false;
+          break;
+        } else {
+          // reset pointer
+          _startIdx = (direction === DIRECTION_NEXT) ? 0 : currentLineLenght - 1;
+          currentLineLastIdx = (direction === DIRECTION_NEXT) ? currentLineLenght : -1;
+        }
+      }
+    }
+
+    //legacy code for version <= 1.4.8
+    legacySearch(direction = DIRECTION_NEXT) {
+      const { term, uid } = this.props;
       const input = this.getInputText();
       if (!input) return;
       const rowsCount = term.getRowCount();
@@ -240,7 +393,6 @@ exports.decorateTerm = (Term, { React }) => {
                 endNode.childNodes.length ? endNode.childNodes[0] : endNode,
                 endIndex - childrenOffsets[endNodeIdx]
               );
-              window.lastRange = range;
               sel.removeAllRanges();
               sel.addRange(range);
               window.store.dispatch(setCurrentMatch(uid, row, startIndex, endIndex));
@@ -257,6 +409,7 @@ exports.decorateTerm = (Term, { React }) => {
         // ßbeep
       }
     }
+
     render() {
       const style = Object.assign({}, this.props.style || {}, { height: '100%' });
       return React.createElement(
