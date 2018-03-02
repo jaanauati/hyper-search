@@ -122,7 +122,9 @@ exports.decorateTerm = (Term, { React }) => {
     handleOnKeyDown(event) {
       const { uid, focussedSessionUid } = this.props;
       if (uid === focussedSessionUid) {
-        if (event.key === ENTER) {
+        if (event.key === ENTER && event.shiftKey) {
+          this.handleSearchPrev();
+        } else if (event.key === ENTER) {
           this.handleSearchNext();
         } else if (event.key === ESCAPE) {
           window.store.dispatch(toggleSearchInput(uid));
