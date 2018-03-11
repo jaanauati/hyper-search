@@ -1,5 +1,7 @@
 const { resetCurrentMatch, setCurrentMatch, toggleSearchInput,
         updateSearchText } = require('./actions');
+const { wrapperStyles, inputStyles, previousButtonStyles,
+  nextButtonStyles } = require('./containerStyles');
 const { DIRECTION_NEXT, DIRECTION_PREV, ENTER, ESCAPE } = require('./constants');
 
 exports.mapTermsState = (state, map) => (
@@ -176,7 +178,7 @@ exports.decorateTerm = (Term, { React }) => {
       term.selectionManager._model.selectionStart = [_startIdx, _startRow];
       term.selectionManager._model.selectionEnd = [_endIdx + 1, _endRow];
       term.selectionManager.refresh();
-      term.scrollDisp(_startRow - term.buffer.ydisp);
+      term.scrollLines(_startRow - term.buffer.ydisp);
       window.store.dispatch(
         setCurrentMatch(uid, _startRow, _startIdx, _endIdx, _endRow)
       );
@@ -420,14 +422,7 @@ exports.decorateTerm = (Term, { React }) => {
         this.toggleInput() &&
         React.createElement('div', {
           className: 'hyper-search-wrapper',
-          style: {
-            height: '30px',
-            position: 'absolute',
-            right: '10px',
-            top: '5px',
-            width: '200px',
-            zIndex: '9999'
-          },
+          style: wrapperStyles(this.props),
         },
         React.createElement('input', {
           id: 'hyper-search-input',
@@ -437,18 +432,18 @@ exports.decorateTerm = (Term, { React }) => {
           onKeyDown: this.handleOnKeyDown,
           placeholder: 'Search...',
           ref: (node) => { this.inputNode = node; },
-          style: { fontSize: '0.8em', height: '100%' },
+          style: inputStyles(this.props),
           value: this.getInputText(),
         }),
         React.createElement(
-          'button', {
-            style: { height: '100%', width: '12%' },
+          'button', { 
+            style: previousButtonStyles(this.props),
             onClick: this.handleSearchPrev,
           },
           '◀️'),
         React.createElement(
-          'button', {
-            style: { height: '100%', width: '12%' },
+          'button', { 
+            style: nextButtonStyles(this.props),
             onClick: this.handleSearchNext,
           },
           '▶️'
