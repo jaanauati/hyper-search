@@ -28,6 +28,10 @@ exports.getTermGroupProps = exports.passProps;
 exports.getTermProps = exports.passProps;
 
 exports.decorateTerm = (Term, { React }) => {
+  function getTerm({ term }) {
+    // term._core exists since hyper => 2.1.0.
+    return term._core || term;
+  }
   class HyperSearchTerm extends React.Component {
     constructor(props, context) {
       super(props, context);
@@ -96,7 +100,8 @@ exports.decorateTerm = (Term, { React }) => {
     }
 
     handleToggleInput() {
-      const { term, uid, focussedSessionUid } = this.props;
+      const { uid, focussedSessionUid } = this.props;
+      const term = getTerm(this.props);
       if (uid === focussedSessionUid) {
         window.store.dispatch(toggleSearchInput(uid));
         if (this.toggleInput()) {
@@ -130,13 +135,13 @@ exports.decorateTerm = (Term, { React }) => {
           this.handleSearchNext();
         } else if (event.key === ESCAPE) {
           window.store.dispatch(toggleSearchInput(uid));
-          if (this.props.term) this.props.term.focus();
+          if (this.props.term) getTerm(this.props).focus();
         }
       }
     }
 
     handleSearch(direction) {
-      const { term } = this.props;
+      const term = getTerm(this.props);
       if (!term.selectionManager) {
         this.legacySearch(direction);
       } else {
@@ -174,7 +179,8 @@ exports.decorateTerm = (Term, { React }) => {
         _startIdx = endIdx;
         _endIdx = startIdx;
       }
-      const { term, uid } = this.props;
+      const { uid } = this.props;
+      const term = getTerm(this.props);
       term.selectionManager._model.selectionStart = [_startIdx, _startRow];
       term.selectionManager._model.selectionEnd = [_endIdx + 1, _endRow];
       term.selectionManager.refresh();
@@ -186,18 +192,28 @@ exports.decorateTerm = (Term, { React }) => {
 
     getLine(lineNr) {
       let line = null;
-      const { term } = this.props;
+      const term = getTerm(this.props);
       const { buffer: { lines } } = term;
       const { length: rows } = lines;
       if (lineNr >= 0 && lineNr < rows) {
-        line = lines.get(lineNr)
-          .reduce((acc, el) => acc + el[1], '');
+        line = '';
+        const lineBuffer = lines.get(lineNr);
+        // hyper < 2.1.0
+        if (lineBuffer instanceof Array) {
+          line = lineBuffer.reduce((acc, el) => acc + el[1], '');
+        } else {
+          for (let charIdx = 0; charIdx < lineBuffer.length; charIdx++) {
+            line += lineBuffer.get(charIdx)[1];
+          }
+        }
       }
       return line;
     }
+
     // toodo: refactor this method and write some tests
     search(direction = DIRECTION_NEXT) {
-      const { term, uid } = this.props;
+      const { uid } = this.props;
+      const term = getTerm(this.props);
       const { buffer: { lines: { length: rows } } } = term;
       const input = this.getInputText();
       const lastMatch = this.getLastMatchPosition();
@@ -436,13 +452,13 @@ exports.decorateTerm = (Term, { React }) => {
           value: this.getInputText(),
         }),
         React.createElement(
-          'button', { 
+          'button', {
             style: previousButtonStyles(this.props),
             onClick: this.handleSearchPrev,
           },
           '◀️'),
         React.createElement(
-          'button', { 
+          'button', {
             style: nextButtonStyles(this.props),
             onClick: this.handleSearchNext,
           },
