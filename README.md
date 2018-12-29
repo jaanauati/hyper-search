@@ -1,5 +1,5 @@
 
-# Hyper-search
+# Hyper-search [![](https://img.shields.io/npm/dm/hyper-search.svg?label=DL)]()
 
 Extension for [Hyper](https://hyper.is) that allows you to search text in your terminal.
 
