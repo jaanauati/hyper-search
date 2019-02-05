@@ -9,7 +9,7 @@ exports.wrapperStyles = (props) => {
     position: 'absolute',
     right: '10px',
     top: '5px',
-    width: '215px',
+    width: '240px',
     zIndex: '9999',
   };
 };
@@ -39,6 +39,28 @@ const buttonStyles = (props) => {
     width: '12%',
   }
 }
+
+exports.caseButtonOffStyles = (props) => {
+  return Object.assign({}, buttonStyles(props), {
+    borderRadius: '12px 12px 12px 12px',
+  });
+};
+
+exports.caseButtonStyles = (props) => {
+  return {
+    background: props.backgroundColor,
+    border: 'none',
+    color: props.foregroundColor,
+    height: '100%',
+    paddingBottom: '2px',
+    opacity: 0.6,
+    outline: 'none',
+    position: 'relative',
+    top: '-2px',
+    width: '12%',
+    borderRadius: '12px 12px 12px 12px',
+  }
+};
 
 exports.previousButtonStyles = (props) => {
   return Object.assign({}, buttonStyles(props), {

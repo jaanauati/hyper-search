@@ -1,7 +1,7 @@
-const { resetCurrentMatch, setCurrentMatch, toggleSearchInput,
+const { resetCurrentMatch, setCurrentMatch, toggleSearchInput, toggleCaseInsensitiveAction,
         updateSearchText } = require('./actions');
 const { wrapperStyles, inputStyles, previousButtonStyles,
-  nextButtonStyles } = require('./containerStyles');
+  nextButtonStyles, caseButtonStyles, caseButtonOffStyles } = require('./containerStyles');
 const { DIRECTION_NEXT, DIRECTION_PREV, ENTER, ESCAPE } = require('./constants');
 
 exports.mapTermsState = (state, map) => (
@@ -11,6 +11,7 @@ exports.mapTermsState = (state, map) => (
     hyperSearchInputText: state.ui.hyperSearchInputText,
     hyperSearchLastUserSearch: state.ui.hyperSearchLastUserSearch,
     hyperSearchCurrentRow: state.ui.hyperSearchCurrentRow,
+    hyperSearchToggleCaseInsensitive: state.ui.hyperSearchToggleCaseInsensitive,
   })
 );
 
@@ -21,6 +22,7 @@ exports.passProps = (uid, parentProps, props) => (
     hyperSearchInputText: parentProps.hyperSearchInputText,
     hyperSearchLastUserSearch: parentProps.hyperSearchLastUserSearch,
     hyperSearchCurrentRow: parentProps.hyperSearchCurrentRow,
+    hyperSearchToggleCaseInsensitive: parentProps.hyperSearchToggleCaseInsensitive,
   })
 );
 
@@ -42,18 +44,27 @@ exports.decorateTerm = (Term, { React }) => {
       this.handleOnChange = this.handleOnChange.bind(this);
       this.handleOnFocus = this.handleOnFocus.bind(this);
       this.handleOnKeyDown = this.handleOnKeyDown.bind(this);
+      this.handleToggleCaseInsensitive = this.handleToggleCaseInsensitive.bind(this);
+      this.state = {caseInsensitive: true}
     }
+
+    // changeCaseInsensitive(tf){
+    //   this.state.caseInsensitive = tf;
+    // }
+
 
     componentDidMount() {
       window.rpc.on('hyper-search:seach:next', this.handleSearchNext);
       window.rpc.on('hyper-search:seach:prev', this.handleSearchPrev);
       window.rpc.on('hyper-search:toggle:input', this.handleToggleInput);
+      window.rpc.on('hyper-search:toggle:case', this.handleToggleCaseInsensitive);
     }
 
     componentWillUnmount() {
       window.rpc.removeListener('hyper-search:seach:next', this.handleSearchNext);
       window.rpc.removeListener('hyper-search:seach:prev', this.handleSearchPrev);
       window.rpc.removeListener('hyper-search:toggle:input', this.handleToggleInput);
+      window.rpc.removeListener('hyper-search:toggle:case', this.handleToggleCaseInsensitive);
     }
 
     //legacy code for version <= 1.4.8
@@ -89,6 +100,22 @@ exports.decorateTerm = (Term, { React }) => {
       return hyperSearchCurrentRow[uid] || {};
     }
 
+    isCaseInsensitive() {
+      return this.state.caseInsensitive;
+    }
+
+    toggleCaseInsensitive(){
+      this.state.caseInsensitive = !this.state.caseInsensitive;
+      return this.state.caseInsensitive;      
+    }
+
+    handleToggleCaseInsensitive() {
+      const { uid, focussedSessionUid } = this.props;
+      const term = getTerm(this.props);
+      this.toggleCaseInsensitive()
+      this.forceUpdate()
+    }
+
     getInputText() {
       const { hyperSearchInputText = {}, uid } = this.props;
       return hyperSearchInputText[uid] || '';
@@ -102,6 +129,7 @@ exports.decorateTerm = (Term, { React }) => {
     handleToggleInput() {
       const { uid, focussedSessionUid } = this.props;
       const term = getTerm(this.props);
+      console.log('input'+uid);
       if (uid === focussedSessionUid) {
         window.store.dispatch(toggleSearchInput(uid));
         if (this.toggleInput()) {
@@ -268,7 +296,16 @@ exports.decorateTerm = (Term, { React }) => {
             _startRow = rowNr;
             _startIdx = lineIdx;
           }
-          if (input[inputIdx] !== currentLine[lineIdx]) {
+
+          let searchTerm = input[inputIdx] || ''
+          let currentTerm = currentLine[lineIdx] || ''        
+
+          if (this.isCaseInsensitive()){
+            searchTerm = searchTerm.toLowerCase();
+            currentTerm = currentTerm.toLowerCase();
+          }
+
+          if (searchTerm!==currentTerm) {
             inputIdx = initialInputIdx;
             // if match started in a different row we rewind to it.
             _startIdx += increment;
@@ -462,8 +499,14 @@ exports.decorateTerm = (Term, { React }) => {
             style: nextButtonStyles(this.props),
             onClick: this.handleSearchNext,
           },
-          '▶️'
-        )),
+          '▶️'),
+        React.createElement(
+            'button', {
+              style: this.isCaseInsensitive() ? caseButtonStyles(this.props) : caseButtonOffStyles(this.props),
+              onClick: this.handleToggleCaseInsensitive,
+            },
+            '⇪')
+        ),
         React.createElement(Term, this.props)
       );
     }
