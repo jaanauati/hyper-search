@@ -19,11 +19,13 @@ Usage:
 
 
 ## TODO:
-- case sensitive / insensite searchs.
 - regular expressions.
 
 ## Credits
 Jonatan Anauati (barakawins@gmail.com)
+
+## Contributors
+Alek Zdziarski
 
 ## License
 
