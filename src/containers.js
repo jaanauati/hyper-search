@@ -124,7 +124,6 @@ exports.decorateTerm = (Term, { React }) => {
     handleToggleInput() {
       const { uid, focussedSessionUid } = this.props;
       const term = getTerm(this.props);
-      console.log('input'+uid);
       if (uid === focussedSessionUid) {
         window.store.dispatch(toggleSearchInput(uid));
         if (this.toggleInput()) {
