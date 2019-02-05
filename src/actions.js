@@ -1,4 +1,4 @@
-const { CURRENT_MATCH, TOGGLE_SEARCH_INPUT, UPDATE_SEARCH_TEXT } = require('./actionTypes');
+const { CURRENT_MATCH, TOGGLE_CASE_INSENSITIVE_ACTION, TOGGLE_SEARCH_INPUT, UPDATE_SEARCH_TEXT } = require('./actionTypes');
 
 module.exports.setCurrentMatch = function setCurrentMatch(
   uid, row, startIndex, endIndex, endRow
@@ -29,6 +29,12 @@ module.exports.resetCurrentMatch = function resetCurrentMatch(
 module.exports.toggleSearchInput = function toggleSearchInput(uid) {
   return (dispatch) => {
     dispatch({ type: TOGGLE_SEARCH_INPUT, uid });
+  };
+};
+
+module.exports.toggleCaseInsensitiveAction = function toggleCaseInsensitiveAction(uid) {
+  return (dispatch) => {
+    dispatch({ type: TOGGLE_CASE_INSENSITIVE_ACTION, uid });
   };
 };
 

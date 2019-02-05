@@ -1,6 +1,6 @@
 {
   "name": "hyper-search",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "text search dialog for hyper.js",
   "main": "src/index.js",
   "scripts": {
@@ -19,6 +19,7 @@
     "plugin"
   ],
   "author": "Jonatan Alexis Anauati",
+  "contributors": ["Alek Zdziarski"],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/jaanauati/hyper-search/issues"
