@@ -48,11 +48,6 @@ exports.decorateTerm = (Term, { React }) => {
       this.state = {caseInsensitive: true}
     }
 
-    // changeCaseInsensitive(tf){
-    //   this.state.caseInsensitive = tf;
-    // }
-
-
     componentDidMount() {
       window.rpc.on('hyper-search:seach:next', this.handleSearchNext);
       window.rpc.on('hyper-search:seach:prev', this.handleSearchPrev);
