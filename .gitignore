@@ -1,3 +1,7 @@
+deploy.sh
+bup.sh
+
+
 # Logs
 logs
 *.log
