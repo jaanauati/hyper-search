@@ -1,7 +1,7 @@
 {
   "name": "hyper-search",
-  "version": "0.0.12",
-  "description": "text search dialog for hyper.js",
+  "version": "0.1.0",
+  "description": "Search text in your Hyper terminal",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
@@ -13,6 +13,7 @@
   },
   "keywords": [
     "hyper",
+    "hyper.is",
     "hyper.app",
     "find",
     "search",
