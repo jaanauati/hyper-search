@@ -17,7 +17,7 @@ exports.decorateMenu = (menu) => {
           },
           {
             label: 'Toggle Case Sensitive',
-            accelerator: `${LEAD_KEY}+Shift+C`,
+            accelerator: `${LEAD_KEY}+Alt+C`,
             click(item, focusedWindow) {
               if (focusedWindow !== null) {
                 focusedWindow.rpc.emit('hyper-search:toggle:case', { focusedWindow });
