@@ -20,7 +20,12 @@
     "plugin"
   ],
   "author": "Jonatan Alexis Anauati",
-  "contributors": ["Alek Zdziarski"],
+  "contributors": [
+    "Alek Zdziarski",
+    "Emmanuel Salomon",
+    "Timo Sand",
+    "Will Stern"
+  ],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/jaanauati/hyper-search/issues"
