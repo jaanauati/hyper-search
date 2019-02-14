@@ -25,7 +25,11 @@ Usage:
 Jonatan Anauati (barakawins@gmail.com)
 
 ## Contributors
-Alek Zdziarski
+Alek Zdziarski (https://github.com/aldudalski)
+Emmanuel Salomon (https://github.com/ManUtopiK)
+Timo Sand (https://github.com/deiga)
+Will Stern (https://github.com/willrstern)
+
 
 ## License
 
