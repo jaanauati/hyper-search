@@ -15,7 +15,7 @@ Usage:
  - Hit ```<Shift>``` + ```<Cmd>``` + G to find the previous occurrence.
  - Hit ```<Esc>``` to hide the search dialog.
 
-![demo](https://media.giphy.com/media/xUA7aXl1VWN460yCju/giphy.gif)
+![demo](https://media.giphy.com/media/7SEQJPH0dqgErNF8Zq/giphy.gif)
 
 
 ## TODO:
