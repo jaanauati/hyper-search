@@ -71,6 +71,23 @@ module.exports = {
 
 ![button margin](https://i.imgur.com/ZKk0mO8.png)
 
+### Change Prev/Next Button Text
+
+```javascript
+module.exports = {
+  config: {
+    ...
+      hyperSearchUI: {
+        prevButton: '←',
+        nextButton: '→'
+      }
+    ...
+  }
+}
+````
+
+![change prev/next button](https://i.imgur.com/ORRuvvw.png)
+
 
 ## TODO:
 - regular expressions.
@@ -79,6 +96,7 @@ module.exports = {
 Jonatan Anauati (barakawins@gmail.com)
 
 ## Contributors
+- Aaron Markey (https://github.com/aaronmarkey)
 - Alek Zdziarski (https://github.com/aldudalski)
 - Emmanuel Salomon (https://github.com/ManUtopiK)
 - Timo Sand (https://github.com/deiga)
