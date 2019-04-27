@@ -1,8 +1,6 @@
 const { resetCurrentMatch, setCurrentMatch, toggleSearchInput, toggleCaseInsensitiveAction,
         updateSearchText } = require('./actions');
-const { wrapperStyles, inputStyles, previousButtonStyles,
-  nextButtonStyles, caseButtonStyles, caseButtonOffStyles } = require('./containerStyles');
-const { DIRECTION_NEXT, DIRECTION_PREV, ENTER, ESCAPE } = require('./constants');
+const { DIRECTION_NEXT, DIRECTION_PREV, ENTER, ESCAPE, STYLE_CLASSES } = require('./constants');
 
 exports.mapTermsState = (state, map) => (
   Object.assign(map, {
@@ -101,7 +99,7 @@ exports.decorateTerm = (Term, { React }) => {
 
     toggleCaseInsensitive(){
       this.state.caseInsensitive = !this.state.caseInsensitive;
-      return this.state.caseInsensitive;      
+      return this.state.caseInsensitive;
     }
 
     handleToggleCaseInsensitive() {
@@ -292,7 +290,7 @@ exports.decorateTerm = (Term, { React }) => {
           }
 
           let searchTerm = input[inputIdx] || ''
-          let currentTerm = currentLine[lineIdx] || ''        
+          let currentTerm = currentLine[lineIdx] || ''
 
           if (this.isCaseInsensitive()){
             searchTerm = searchTerm.toLowerCase();
@@ -468,38 +466,31 @@ exports.decorateTerm = (Term, { React }) => {
         { style },
         this.toggleInput() &&
         React.createElement('div', {
-          className: 'hyper-search-wrapper',
-          style: wrapperStyles(this.props),
+          className: STYLE_CLASSES.wrapper
         },
-        React.createElement('input', {
-          id: 'hyper-search-input',
-          autoFocus: true,
-          onChange: this.handleOnChange,
-          onFocus: this.handleOnFocus,
-          onKeyDown: this.handleOnKeyDown,
-          placeholder: 'Search...',
-          ref: (node) => { this.inputNode = node; },
-          style: inputStyles(this.props),
-          value: this.getInputText(),
-        }),
-        React.createElement(
-          'button', {
-            style: previousButtonStyles(this.props),
+          React.createElement('input', {
+            id: 'hyper-search-input',
+            className: STYLE_CLASSES.input,
+            autoFocus: true,
+            onChange: this.handleOnChange,
+            onFocus: this.handleOnFocus,
+            onKeyDown: this.handleOnKeyDown,
+            placeholder: 'Search...',
+            ref: (node) => { this.inputNode = node; },
+            value: this.getInputText(),
+          }),
+          React.createElement('button', {
+            className: STYLE_CLASSES.previousButton,
             onClick: this.handleSearchPrev,
-          },
-          '◀️'),
-        React.createElement(
-          'button', {
-            style: nextButtonStyles(this.props),
+          }),
+          React.createElement('button', {
+            className: STYLE_CLASSES.nextButton,
             onClick: this.handleSearchNext,
-          },
-          '▶️'),
-        React.createElement(
-            'button', {
-              style: this.isCaseInsensitive() ? caseButtonStyles(this.props) : caseButtonOffStyles(this.props),
-              onClick: this.handleToggleCaseInsensitive,
-            },
-            '⇪')
+          }),
+          React.createElement('button', {
+            className: `${STYLE_CLASSES.caseButton} ${this.isCaseInsensitive() ? STYLE_CLASSES.caseButtonUnfocused : STYLE_CLASSES.caseButtonFocused}`,
+            onClick: this.handleToggleCaseInsensitive,
+          })
         ),
         React.createElement(Term, this.props)
       );
