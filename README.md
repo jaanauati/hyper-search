@@ -21,7 +21,7 @@ Usage:
 
 hyper-search supports various style modifications.
 
-In `~/.hyper.js`
+In `~/.hyper.js`:
 
 ### Change Search Box Border Radius
 
@@ -69,7 +69,7 @@ module.exports = {
 }
 ````
 
-![button margin ](https://i.imgur.com/ZKk0mO8.png)
+![button margin](https://i.imgur.com/ZKk0mO8.png)
 
 
 ## TODO:
