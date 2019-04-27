@@ -7,7 +7,6 @@ module.exports.DIRECTION_PREV = -1;
 module.exports.STYLE_CLASSES = {
   wrapper: 'hyper-search-wrapper',
   input: 'hyper-search-input',
-  buttonContainer: 'hyper-search-button-container',
   previousButton: 'hyper-search-previous-button',
   nextButton: 'hyper-search-next-button',
   caseButton: 'hyper-search-case-button',
