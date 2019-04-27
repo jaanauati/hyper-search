@@ -465,9 +465,11 @@ exports.decorateTerm = (Term, { React }) => {
         'div',
         { style },
         this.toggleInput() &&
-        React.createElement('div', {
-          className: STYLE_CLASSES.wrapper
-        },
+        React.createElement(
+          'div',
+          {
+            className: STYLE_CLASSES.wrapper
+          },
           React.createElement('input', {
             id: 'hyper-search-input',
             className: STYLE_CLASSES.input,
