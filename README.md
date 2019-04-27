@@ -17,6 +17,60 @@ Usage:
 
 ![demo](https://media.giphy.com/media/7SEQJPH0dqgErNF8Zq/giphy.gif)
 
+## Config
+
+hyper-search supports various style modifications.
+
+In `~/.hyper.js`
+
+### Change Search Box Border Radius
+
+```javascript
+module.exports = {
+  config: {
+    ...
+      hyperSearchUI: {
+        inputBorderRadius: 2
+      }
+    ...
+  }
+}
+````
+
+![input border radius](https://i.imgur.com/POliDqP.png)
+
+### Change Previous/Next Button Border Radius
+
+```javascript
+module.exports = {
+  config: {
+    ...
+      hyperSearchUI: {
+        buttonBorderRadius: 2,
+      }
+    ...
+  }
+}
+````
+
+![navigation button border radius](https://i.imgur.com/YSam2Ph.png)
+
+### Change Button Margins
+
+```javascript
+module.exports = {
+  config: {
+    ...
+      hyperSearchUI: {
+        buttonMargin: 2,
+      }
+    ...
+  }
+}
+````
+
+![button margin ](https://i.imgur.com/ZKk0mO8.png)
+
 
 ## TODO:
 - regular expressions.
