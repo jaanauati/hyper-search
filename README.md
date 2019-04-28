@@ -17,6 +17,77 @@ Usage:
 
 ![demo](https://media.giphy.com/media/7SEQJPH0dqgErNF8Zq/giphy.gif)
 
+## Config
+
+hyper-search supports various style modifications.
+
+In `~/.hyper.js`:
+
+### Change Search Box Border Radius
+
+```javascript
+module.exports = {
+  config: {
+    ...
+      hyperSearchUI: {
+        inputBorderRadius: 2
+      }
+    ...
+  }
+}
+````
+
+![input border radius](https://i.imgur.com/POliDqP.png)
+
+### Change Previous/Next Button Border Radius
+
+```javascript
+module.exports = {
+  config: {
+    ...
+      hyperSearchUI: {
+        buttonBorderRadius: 2,
+      }
+    ...
+  }
+}
+````
+
+![navigation button border radius](https://i.imgur.com/YSam2Ph.png)
+
+### Change Button Margins
+
+```javascript
+module.exports = {
+  config: {
+    ...
+      hyperSearchUI: {
+        buttonMargin: 2,
+      }
+    ...
+  }
+}
+````
+
+![button margin](https://i.imgur.com/ZKk0mO8.png)
+
+### Change Prev/Next Button Text
+
+```javascript
+module.exports = {
+  config: {
+    ...
+      hyperSearchUI: {
+        prevButton: '←',
+        nextButton: '→'
+      }
+    ...
+  }
+}
+````
+
+![change prev/next button](https://i.imgur.com/ORRuvvw.png)
+
 
 ## TODO:
 - regular expressions.
@@ -25,6 +96,7 @@ Usage:
 Jonatan Anauati (barakawins@gmail.com)
 
 ## Contributors
+- Aaron Markey (https://github.com/aaronmarkey)
 - Alek Zdziarski (https://github.com/aldudalski)
 - Emmanuel Salomon (https://github.com/ManUtopiK)
 - Timo Sand (https://github.com/deiga)
