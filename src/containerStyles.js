@@ -27,6 +27,7 @@ exports.decorateConfig = (config) => {
 
   return Object.assign({}, config, {
     css: `
+      ${config.css ? config.css : ''}
       .${STYLE_CLASSES.wrapper} {
         background: ${config.backgroundColor};
         border-radius: ${hyperSearchUI.inputBorderRadius}px;
