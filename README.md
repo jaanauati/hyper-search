@@ -101,6 +101,7 @@ Jonatan Anauati (barakawins@gmail.com)
 - Emmanuel Salomon (https://github.com/ManUtopiK)
 - Timo Sand (https://github.com/deiga)
 - Will Stern (https://github.com/willrstern)
+- Yanir (https://github.com/yanir3)
 
 
 ## License
