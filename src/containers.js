@@ -283,7 +283,7 @@ exports.decorateTerm = (Term, { React }) => {
       while (true) {
         let inputIdx = initialInputIdx;
         let lineIdx = _startIdx;
-        while (lineIdx !== currentLineLastIdx) {
+        while (lineIdx !== currentLineLastIdx && currentLineLastIdx !== 0) {
           if (inputIdx === initialInputIdx) {
             _startRow = rowNr;
             _startIdx = lineIdx;
