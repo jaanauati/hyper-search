@@ -1,19 +1,17 @@
 const { STYLE_CLASSES } = require('./constants');
 
-const buttonStyles = (config) => {
-  return `
+const buttonStyles = config => `
     background: ${config.foregroundColor};
     border: none;
     color: ${config.backgroundColor};
-    height: 100%;
-    padding-bottom: 2px;
     opacity: 0.6;
     outline: none;
-    position: relative;
-    top: -2px;
-    width: 12%;
-  `
-}
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `;
 
 
 exports.decorateConfig = (config) => {
@@ -22,8 +20,7 @@ exports.decorateConfig = (config) => {
     buttonBorderRadius: 10,
     prevButton: '◀',
     nextButton: '▶',
-    buttonMargin: 0
-  }, config.hyperSearchUI)
+  }, config.hyperSearchUI);
 
   return Object.assign({}, config, {
     css: `
@@ -32,14 +29,14 @@ exports.decorateConfig = (config) => {
         background: ${config.backgroundColor};
         border-radius: ${hyperSearchUI.inputBorderRadius}px;
         border: 1px solid ${config.foregroundColor};
-        height: 30px;
+        height: 40px;
         opacity: 0.6;
-        padding: 5px 0 5px 10px;
         position: absolute;
         right: 10px;
         top: 5px;
-        width: ${240 + hyperSearchUI.buttonMargin * 2 + 1}px;
         z-index: 9999;
+        display: flex;
+        align-items: center;
       }
 
       .${STYLE_CLASSES.input} {
@@ -49,6 +46,9 @@ exports.decorateConfig = (config) => {
           font-size: 0.8em;
           opacity: 1;
           outline: none;
+          flex: 1;
+          padding: 0 8px;
+          align-self: stretch;
       }
 
       .${STYLE_CLASSES.previousButton} {
@@ -62,7 +62,6 @@ exports.decorateConfig = (config) => {
 
       .${STYLE_CLASSES.nextButton} {
         border-radius: 0 ${hyperSearchUI.buttonBorderRadius}px ${hyperSearchUI.buttonBorderRadius}px 0;
-        margin-right: ${hyperSearchUI.buttonMargin}px;
         ${buttonStyles(config)}
       }
 
@@ -71,7 +70,9 @@ exports.decorateConfig = (config) => {
       }
 
       .${STYLE_CLASSES.caseButton} {
-        margin-right: ${hyperSearchUI.buttonMargin}px;
+        border-radius: ${hyperSearchUI.buttonBorderRadius}px;
+        margin: 0 4px;
+        ${buttonStyles(config)}
       }
 
       .${STYLE_CLASSES.caseButton}::after {
@@ -79,22 +80,12 @@ exports.decorateConfig = (config) => {
       }
 
       .${STYLE_CLASSES.caseButtonFocused} {
-        border-radius: ${hyperSearchUI.buttonBorderRadius}px;
         ${buttonStyles(config)}
       }
 
       .${STYLE_CLASSES.caseButtonUnfocused} {
-          background: ${config.backgroundColor};
-          border: none;
-          color: ${config.foregroundColor};
-          height: 100%;
-          padding-bottom: 2px;
-          opacity: 0.6;
-          outline: none;
-          position: relative;
-          top: -2px;
-          width: 12%;
-          border-radius: ${hyperSearchUI.buttonBorderRadius}px;
+        background: ${config.backgroundColor};
+        color: ${config.foregroundColor};
       }
     `
   });
