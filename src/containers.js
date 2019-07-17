@@ -222,9 +222,7 @@ exports.decorateTerm = (Term, { React }) => {
         if (lineBuffer instanceof Array) {
           line = lineBuffer.reduce((acc, el) => acc + el[1], '');
         } else {
-          for (let charIdx = 0; charIdx < lineBuffer.length; charIdx++) {
-            line += lineBuffer.get(charIdx)[1];
-          }
+          return lineBuffer.translateToString();
         }
       }
       return line;
