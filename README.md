@@ -13,6 +13,7 @@ Usage:
  - Type ```<Cmd>``` + F to toggle the search controls.
  - Hit ```<Cmd>``` + G to find the next occurrence.
  - Hit ```<Shift>``` + ```<Cmd>``` + G to find the previous occurrence.
+ - Hit ```<Tab>``` or ```<Shift>+<Tab>``` to expand the selection to the right or left (see Mouseless Copy: https://www.iterm2.com/features.html).
  - Hit ```<Esc>``` to hide the search dialog.
 
 ![demo](https://media.giphy.com/media/7SEQJPH0dqgErNF8Zq/giphy.gif)
