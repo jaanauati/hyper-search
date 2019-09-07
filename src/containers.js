@@ -37,6 +37,7 @@ exports.decorateTerm = (Term, { React }) => {
     constructor(props, context) {
       super(props, context);
       this.inputNode = null;
+      this.copySelectionToClipboard = this.copySelectionToClipboard.bind(this);
       this.handlePrevTab = this.handlePrevTab.bind(this);
       this.handleNextTab = this.handleNextTab.bind(this);
       this.handleSearchNext = this.handleSearchNext.bind(this);
@@ -163,6 +164,7 @@ exports.decorateTerm = (Term, { React }) => {
           } else {
             this.handleNextTab();
           }
+          this.copySelectionToClipboard();
         } else if (event.key === ESCAPE) {
           window.store.dispatch(toggleSearchInput(uid));
           if (this.props.term) getTerm(this.props).focus();
@@ -219,7 +221,6 @@ exports.decorateTerm = (Term, { React }) => {
         setCurrentMatch(uid, _startRow, _startIdx, _endIdx, _endRow)
       );
       window.store.dispatch(updateSearchText(uid, term.selectionManager.selectionText));
-      clipboard.writeText(term.selectionManager.selectionText, 'selection')
       this.selectedText = term.selectionManager.selectionText;
     }
 
@@ -470,8 +471,12 @@ exports.decorateTerm = (Term, { React }) => {
       }
     }
 
-    handlePrevTab() {
+    copySelectionToClipboard() {
+      const term = getTerm(this.props);
+      clipboard.writeText(term.selectionManager.selectionText, 'selection');
+    }
 
+    handlePrevTab() {
       const term = getTerm(this.props);
       const {buffer: {lines: {length: rows}}} = term;
       let input = this.getInputText();
@@ -507,7 +512,6 @@ exports.decorateTerm = (Term, { React }) => {
     }
 
     handleNextTab() {
-
       const term = getTerm(this.props);
       const {buffer: {lines: {length: rows}}} = term;
       let input = this.getInputText();
@@ -540,7 +544,7 @@ exports.decorateTerm = (Term, { React }) => {
       this.selectedText = currentSelection;
 
       this.highlightLine(startRow, startIdx, endRow, endIdx);
-    } // end function
+    }
 
 
     render() {
