@@ -1,6 +1,6 @@
 {
   "name": "hyper-search",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Search text in your Hyper terminal",
   "main": "src/index.js",
   "scripts": {
