@@ -1,6 +1,7 @@
 const { resetCurrentMatch, setCurrentMatch, toggleSearchInput, toggleCaseInsensitiveAction,
         updateSearchText } = require('./actions');
-const { DIRECTION_NEXT, DIRECTION_PREV, ENTER, ESCAPE, STYLE_CLASSES } = require('./constants');
+const { DIRECTION_NEXT, DIRECTION_PREV, TAB, ENTER, ESCAPE, STYLE_CLASSES } = require('./constants');
+const { clipboard } = require('electron');
 
 exports.mapTermsState = (state, map) => (
   Object.assign(map, {
@@ -36,6 +37,9 @@ exports.decorateTerm = (Term, { React }) => {
     constructor(props, context) {
       super(props, context);
       this.inputNode = null;
+      this.copySelectionToClipboard = this.copySelectionToClipboard.bind(this);
+      this.handlePrevTab = this.handlePrevTab.bind(this);
+      this.handleNextTab = this.handleNextTab.bind(this);
       this.handleSearchNext = this.handleSearchNext.bind(this);
       this.handleSearchPrev = this.handleSearchPrev.bind(this);
       this.handleToggleInput = this.handleToggleInput.bind(this);
@@ -150,9 +154,17 @@ exports.decorateTerm = (Term, { React }) => {
       const { uid, focussedSessionUid } = this.props;
       if (uid === focussedSessionUid) {
         if (event.key === ENTER && event.shiftKey) {
-          this.handleSearchPrev();
-        } else if (event.key === ENTER) {
           this.handleSearchNext();
+        } else if (event.key === ENTER) {
+          this.handleSearchPrev();
+        } else if (event.key === TAB) {
+          event.preventDefault();
+          if (event.shiftKey) {
+            this.handlePrevTab();
+          } else {
+            this.handleNextTab();
+          }
+          this.copySelectionToClipboard();
         } else if (event.key === ESCAPE) {
           window.store.dispatch(toggleSearchInput(uid));
           if (this.props.term) getTerm(this.props).focus();
@@ -208,6 +220,8 @@ exports.decorateTerm = (Term, { React }) => {
       window.store.dispatch(
         setCurrentMatch(uid, _startRow, _startIdx, _endIdx, _endRow)
       );
+      window.store.dispatch(updateSearchText(uid, term.selectionManager.selectionText));
+      this.selectedText = term.selectionManager.selectionText;
     }
 
     getLine(lineNr) {
@@ -456,6 +470,82 @@ exports.decorateTerm = (Term, { React }) => {
         // ßbeep
       }
     }
+
+    copySelectionToClipboard() {
+      const term = getTerm(this.props);
+      clipboard.writeText(term.selectionManager.selectionText, 'selection');
+    }
+
+    handlePrevTab() {
+      const term = getTerm(this.props);
+      const {buffer: {lines: {length: rows}}} = term;
+      let input = this.getInputText();
+      const lastMatch = this.getLastMatchPosition();
+
+      let startRow = lastMatch.row || 0;
+      let startIdx = lastMatch.startIndex || 0;
+      let endIdx = lastMatch.endIndex || 0;
+      let endRow = startRow;
+
+      let rowNr = startRow;
+
+      let currentLine = this.getLine(rowNr);
+      for (let i = startIdx - 1; i >= 0; i--){
+        let nextChar = currentLine.charAt(i);
+        let pattern =  /[a-z0-9\/\-\+\\~_.]/i;
+        if (!pattern.test(nextChar)) {
+          break;
+        }
+        startIdx--;
+        input = nextChar + input;
+      }
+
+      // if there is no movement at all we advance at least on char
+      let currentSelection = currentLine.substring(startIdx, endIdx + 1);
+      if (this.selectedText === currentSelection && startIdx > 0) {
+        startIdx--;
+        currentSelection = currentLine.substring(startIdx, endIdx + 1);
+      }
+      this.selectedText = currentSelection;
+
+      this.highlightLine(startRow, startIdx, endRow, endIdx, currentSelection);
+    }
+
+    handleNextTab() {
+      const term = getTerm(this.props);
+      const {buffer: {lines: {length: rows}}} = term;
+      let input = this.getInputText();
+      const lastMatch = this.getLastMatchPosition();
+
+      let startRow = lastMatch.row || 0;
+      let startIdx = lastMatch.startIndex || 0;
+      let endIdx = lastMatch.endIndex || 0;
+      let endRow = startRow;
+
+      let rowNr = startRow;
+
+      let currentLine = this.getLine(rowNr);
+      for (let i = endIdx + 1; i <= currentLine.length; i++){
+        let nextChar = currentLine.charAt(i);
+        let pattern =  /[a-z0-9\/\-\+\\~_.]/i;
+        if (!pattern.test(nextChar)) {
+          break;
+        }
+        endIdx++;
+        input += nextChar;
+      }
+
+      // if there is no movement at all we advance at least on char
+      let currentSelection = currentLine.substring(startIdx, endIdx + 1);
+      if (this.selectedText === currentSelection) {
+        endIdx++;
+        currentSelection = currentLine.substring(startIdx, endIdx + 1);
+      }
+      this.selectedText = currentSelection;
+
+      this.highlightLine(startRow, startIdx, endRow, endIdx);
+    }
+
 
     render() {
       const style = Object.assign({}, this.props.style || {}, { height: '100%' });

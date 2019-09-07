@@ -10,9 +10,10 @@ to `plugins` in `~/.hyper.js` and restart hyper.js.
 
 Usage:
  - A new 'find' submenu should be available in the 'Edit' menu.
- - Type ```<Cmd>``` + F to toggle the search controls.
- - Hit ```<Cmd>``` + G to find the next occurrence.
- - Hit ```<Shift>``` + ```<Cmd>``` + G to find the previous occurrence.
+ - Type ```<Cmd>+F``` to toggle the search controls.
+ - Hit ```<Cmd>+G``` to find the next occurrence.
+ - Hit ```<Shift>+<Cmd>+G``` to find the previous occurrence.
+ - Hit ```<Tab>``` or ```<Shift>+<Tab>``` to expand the selection to the right or left (see Mouseless Copy: https://www.iterm2.com/features.html).
  - Hit ```<Esc>``` to hide the search dialog.
 
 ![demo](https://media.giphy.com/media/7SEQJPH0dqgErNF8Zq/giphy.gif)
